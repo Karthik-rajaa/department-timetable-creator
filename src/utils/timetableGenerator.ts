@@ -103,12 +103,26 @@ export const generateTimetable = (
   const shuffledTheory = shuffleArray(theoryPool);
   
   // Fill remaining empty slots with theory subjects
+  // First pass: use the scheduled theory pool
   let theoryIndex = 0;
   for (let d = 0; d < 5; d++) {
     for (let s = 0; s < TIME_SLOTS.length; s++) {
       if (days[d].slots[s].isEmpty && theoryIndex < shuffledTheory.length) {
         days[d].slots[s] = { subject: shuffledTheory[theoryIndex] };
         theoryIndex++;
+      }
+    }
+  }
+  
+  // Second pass: fill any remaining empty slots by cycling through theory subjects
+  if (theorySubjects.length > 0) {
+    let subjectIndex = 0;
+    for (let d = 0; d < 5; d++) {
+      for (let s = 0; s < TIME_SLOTS.length; s++) {
+        if (days[d].slots[s].isEmpty) {
+          days[d].slots[s] = { subject: theorySubjects[subjectIndex % theorySubjects.length] };
+          subjectIndex++;
+        }
       }
     }
   }
@@ -126,11 +140,13 @@ export const autoDistributeHours = (subjects: Subject[]): Subject[] => {
   const theoryCount = subjects.filter(s => s.type === 'theory').length;
   const labCount = subjects.filter(s => s.type === 'lab').length;
   
+  if (theoryCount === 0) return subjects;
+  
   // Total available class slots per week (7 slots * 5 days = 35)
   // Minus lab slots (2 slots per lab)
   const totalSlots = 35 - (labCount * 2);
   
-  // Distribute evenly among theory subjects
+  // Distribute evenly among theory subjects - no cap to ensure all slots are filled
   const baseHours = Math.floor(totalSlots / theoryCount);
   let remaining = totalSlots - (baseHours * theoryCount);
   
@@ -145,7 +161,7 @@ export const autoDistributeHours = (subjects: Subject[]): Subject[] => {
     
     return {
       ...subject,
-      weeklyHours: Math.min(hours, 6), // Cap at 6 hours per subject
+      weeklyHours: hours,
     };
   });
 };
