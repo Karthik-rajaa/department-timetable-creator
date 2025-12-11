@@ -1,12 +1,52 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { motion } from 'framer-motion';
+import { Calendar, Sparkles } from 'lucide-react';
+import { TimetableGenerator } from '@/components/TimetableGenerator';
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      {/* Hero Header */}
+      <header className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-accent/10 rounded-full blur-3xl" />
+        
+        <div className="relative container py-8 sm:py-12">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent mb-4">
+              <Sparkles className="w-4 h-4" />
+              <span className="text-sm font-medium">Smart Scheduling</span>
+            </div>
+            
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-3">
+              <span className="gradient-text">Timetable</span>{' '}
+              <span className="text-foreground">Generator</span>
+            </h1>
+            
+            <p className="text-muted-foreground max-w-md mx-auto text-sm sm:text-base">
+              Create beautiful, randomized weekly timetables for your department in seconds
+            </p>
+          </motion.div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="pb-12">
+        <TimetableGenerator />
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border py-6">
+        <div className="container text-center text-sm text-muted-foreground">
+          <div className="flex items-center justify-center gap-2">
+            <Calendar className="w-4 h-4" />
+            <span>Timetable Generator</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
