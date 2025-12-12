@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Calendar, Sparkles } from 'lucide-react';
+
 import { TimetableGenerator } from '@/components/TimetableGenerator';
 
 const Index = () => {
