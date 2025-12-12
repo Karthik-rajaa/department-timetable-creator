@@ -24,57 +24,98 @@ export const TimetableOptionsStep = ({
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const timetableRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const exportRef = useRef<HTMLDivElement | null>(null);
   const { toast } = useToast();
 
   const handleExportPDF = async () => {
     if (selectedIndex === null) return;
     
-    const element = timetableRefs.current[selectedIndex];
-    if (!element) return;
-
     setIsExporting(true);
+    
     try {
-      // Create a canvas from the element
-      const canvas = await html2canvas(element, {
+      // Create a temporary container for the export
+      const container = document.createElement('div');
+      container.style.position = 'absolute';
+      container.style.left = '-9999px';
+      container.style.top = '0';
+      container.style.width = '1000px';
+      container.style.backgroundColor = '#ffffff';
+      document.body.appendChild(container);
+
+      // Create a fresh render of the timetable for export
+      const timetable = timetables[selectedIndex];
+      container.innerHTML = `
+        <div style="width: 950px; padding: 20px; background: white; font-family: system-ui, -apple-system, sans-serif;">
+          <div style="background: #1e3a5f; color: white; padding: 16px; text-align: center; border-radius: 8px 8px 0 0;">
+            <h2 style="margin: 0; font-size: 18px; font-weight: bold;">${timetable.department} - ${timetable.year}</h2>
+            <p style="margin: 4px 0 0 0; font-size: 12px; opacity: 0.8;">Weekly Timetable</p>
+          </div>
+          <table style="width: 100%; border-collapse: collapse; border: 1px solid #e5e7eb; border-top: none;">
+            <thead>
+              <tr style="background: #f5f7fa;">
+                <th style="border: 1px solid #e5e7eb; padding: 10px; width: 100px; font-weight: 600;">Time</th>
+                <th style="border: 1px solid #e5e7eb; padding: 10px; font-weight: 600;">Monday</th>
+                <th style="border: 1px solid #e5e7eb; padding: 10px; font-weight: 600;">Tuesday</th>
+                <th style="border: 1px solid #e5e7eb; padding: 10px; font-weight: 600;">Wednesday</th>
+                <th style="border: 1px solid #e5e7eb; padding: 10px; font-weight: 600;">Thursday</th>
+                <th style="border: 1px solid #e5e7eb; padding: 10px; font-weight: 600;">Friday</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${generateTableRows(timetable)}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      // Use html2canvas to capture the element
+      const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
+        width: 950,
+        windowWidth: 950,
       });
 
-      // Calculate dimensions for PDF (A4 landscape)
-      const imgWidth = 297; // A4 landscape width in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      // Create PDF in landscape orientation
+      // Remove temporary container
+      document.body.removeChild(container);
+
+      // Create PDF in landscape A4
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'mm',
         format: 'a4',
       });
 
-      // Add title
-      const timetable = timetables[selectedIndex];
-      pdf.setFontSize(16);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(`${timetable.department} - ${timetable.year}`, 14, 15);
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text('Weekly Timetable', 14, 22);
-
-      // Add the timetable image
-      const imgData = canvas.toDataURL('image/png');
-      const yOffset = 28;
-      const availableHeight = 210 - yOffset - 10; // A4 landscape height minus margins
-      const scaledHeight = Math.min(imgHeight, availableHeight);
-      const scaledWidth = (scaledHeight * canvas.width) / canvas.height;
+      // A4 landscape dimensions: 297mm x 210mm
+      const pageWidth = 297;
+      const pageHeight = 210;
+      const margin = 10;
       
-      pdf.addImage(imgData, 'PNG', 14, yOffset, Math.min(scaledWidth, 269), scaledHeight);
+      // Calculate dimensions to fit the canvas on the page
+      const imgWidth = pageWidth - (margin * 2);
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      // If image is too tall, scale it down
+      const maxHeight = pageHeight - (margin * 2);
+      let finalWidth = imgWidth;
+      let finalHeight = imgHeight;
+      
+      if (imgHeight > maxHeight) {
+        finalHeight = maxHeight;
+        finalWidth = (canvas.width * finalHeight) / canvas.height;
+      }
+
+      // Center the image
+      const xOffset = (pageWidth - finalWidth) / 2;
+      const yOffset = (pageHeight - finalHeight) / 2;
+
+      const imgData = canvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalWidth, finalHeight);
 
       // Save the PDF
-      pdf.save(`timetable-${timetable.department.toLowerCase().replace(/\s+/g, '-')}-${timetable.year.toLowerCase()}.pdf`);
+      pdf.save(`timetable-${timetable.department.toLowerCase().replace(/\s+/g, '-')}-${timetable.year.toLowerCase().replace(/\s+/g, '-')}.pdf`);
 
       toast({
         title: "Timetable exported!",
@@ -179,3 +220,64 @@ export const TimetableOptionsStep = ({
     </motion.div>
   );
 };
+
+// Helper function to generate table rows HTML
+function generateTableRows(timetable: Timetable): string {
+  const timeSlots = [
+    { time: '09:30-10:15', type: 'class', label: 'Slot 1' },
+    { time: '10:15-11:00', type: 'class', label: 'Slot 2' },
+    { time: '11:00-11:15', type: 'break', label: 'Morning Break' },
+    { time: '11:15-12:00', type: 'class', label: 'Slot 3' },
+    { time: '12:00-12:45', type: 'class', label: 'Slot 4' },
+    { time: '12:45-01:45', type: 'lunch', label: 'Lunch Break' },
+    { time: '01:45-02:30', type: 'class', label: 'Slot 5' },
+    { time: '02:30-03:15', type: 'class', label: 'Slot 6' },
+    { time: '03:15-03:30', type: 'break', label: 'Evening Break' },
+    { time: '03:30-04:15', type: 'class', label: 'Slot 7' },
+  ];
+
+  return timeSlots.map((slot, slotIndex) => {
+    const isBreak = slot.type === 'break' || slot.type === 'lunch';
+    const breakStyle = 'background: #fef3c7; color: #b45309; font-weight: 500;';
+    const timeStyle = isBreak ? breakStyle : 'background: #fafafa;';
+    
+    if (isBreak) {
+      return `
+        <tr>
+          <td style="border: 1px solid #e5e7eb; padding: 8px; text-align: center; font-size: 11px; ${timeStyle}">${slot.time}</td>
+          <td colspan="5" style="border: 1px solid #e5e7eb; padding: 10px; text-align: center; ${breakStyle}">${slot.label}</td>
+        </tr>
+      `;
+    }
+
+    const dayCells = [0, 1, 2, 3, 4].map(dayIndex => {
+      const cell = timetable.days[dayIndex]?.slots[slotIndex];
+      
+      if (!cell || cell.isEmpty) {
+        return `<td style="border: 1px solid #e5e7eb; padding: 8px; text-align: center; color: #9ca3af;">-</td>`;
+      }
+
+      if (cell.isLabContinuation) {
+        return `<td style="border: 1px solid #e5e7eb; padding: 8px; text-align: center; background: #dbeafe; color: #1e40af;"><span style="font-size: 10px; opacity: 0.7;">(continued)</span></td>`;
+      }
+
+      const isLab = cell.subject?.type === 'lab';
+      const bgColor = isLab ? '#dbeafe' : '#f0fdf4';
+      const textColor = isLab ? '#1e40af' : '#166534';
+
+      return `
+        <td style="border: 1px solid #e5e7eb; padding: 8px; text-align: center; background: ${bgColor}; color: ${textColor};">
+          <div style="font-weight: 500;">${cell.subject?.name || '-'}</div>
+          ${isLab && cell.subject?.venue ? `<div style="font-size: 10px; opacity: 0.7; margin-top: 2px;">${cell.subject.venue}</div>` : ''}
+        </td>
+      `;
+    }).join('');
+
+    return `
+      <tr>
+        <td style="border: 1px solid #e5e7eb; padding: 8px; text-align: center; font-size: 11px; ${timeStyle}">${slot.time}</td>
+        ${dayCells}
+      </tr>
+    `;
+  }).join('');
+}
