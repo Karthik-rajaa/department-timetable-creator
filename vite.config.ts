@@ -14,11 +14,11 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
+      includeAssets: ["favicon.png", "apple-touch-icon.png", "mask-icon.svg"],
       manifest: {
-        name: "Timetable Generator",
-        short_name: "TimeGen",
-        description: "Generate beautiful random timetables for your department",
+        name: "AI Powered Timetable Scheduler",
+        short_name: "AI Scheduler",
+        description: "AI powered timetable scheduler - Generate beautiful random timetables for your department",
         theme_color: "#1e3a5f",
         background_color: "#f5f7fa",
         display: "standalone",

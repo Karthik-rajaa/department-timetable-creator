@@ -18,16 +18,16 @@ const Index = () => {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent mb-4">
               <Sparkles className="w-4 h-4" />
-              <span className="text-sm font-medium">Smart Scheduling</span>
+              <span className="text-sm font-medium">AI Powered</span>
             </div>
             
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-3">
               <span className="gradient-text">Timetable</span>{' '}
-              <span className="text-foreground">Generator</span>
+              <span className="text-foreground">Scheduler</span>
             </h1>
             
             <p className="text-muted-foreground max-w-md mx-auto text-sm sm:text-base">
-              Create beautiful, randomized weekly timetables for your department in seconds
+              Create beautiful, AI-powered weekly timetables for your department in seconds
             </p>
           </motion.div>
         </div>
@@ -43,7 +43,7 @@ const Index = () => {
         <div className="container text-center text-sm text-muted-foreground">
           <div className="flex items-center justify-center gap-2">
             <Calendar className="w-4 h-4" />
-            <span>Timetable Generator</span>
+            <span>AI Powered Timetable Scheduler</span>
           </div>
         </div>
       </footer>
