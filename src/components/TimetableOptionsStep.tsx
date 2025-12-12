@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Download, RefreshCw, Check } from 'lucide-react';
-import { toPng } from 'html-to-image';
+import { ArrowLeft, Download, RefreshCw, Check, FileText } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { TimetableDisplay } from './TimetableDisplay';
@@ -25,7 +26,7 @@ export const TimetableOptionsStep = ({
   const timetableRefs = useRef<(HTMLDivElement | null)[]>([]);
   const { toast } = useToast();
 
-  const handleExport = async () => {
+  const handleExportPDF = async () => {
     if (selectedIndex === null) return;
     
     const element = timetableRefs.current[selectedIndex];
@@ -33,22 +34,54 @@ export const TimetableOptionsStep = ({
 
     setIsExporting(true);
     try {
-      const dataUrl = await toPng(element, {
-        quality: 1,
-        pixelRatio: 2,
+      // Create a canvas from the element
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
         backgroundColor: '#ffffff',
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
       });
 
-      const link = document.createElement('a');
-      link.download = `timetable-option-${selectedIndex + 1}.png`;
-      link.href = dataUrl;
-      link.click();
+      // Calculate dimensions for PDF (A4 landscape)
+      const imgWidth = 297; // A4 landscape width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      // Create PDF in landscape orientation
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      // Add title
+      const timetable = timetables[selectedIndex];
+      pdf.setFontSize(16);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(`${timetable.department} - ${timetable.year}`, 14, 15);
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Weekly Timetable', 14, 22);
+
+      // Add the timetable image
+      const imgData = canvas.toDataURL('image/png');
+      const yOffset = 28;
+      const availableHeight = 210 - yOffset - 10; // A4 landscape height minus margins
+      const scaledHeight = Math.min(imgHeight, availableHeight);
+      const scaledWidth = (scaledHeight * canvas.width) / canvas.height;
+      
+      pdf.addImage(imgData, 'PNG', 14, yOffset, Math.min(scaledWidth, 269), scaledHeight);
+
+      // Save the PDF
+      pdf.save(`timetable-${timetable.department.toLowerCase().replace(/\s+/g, '-')}-${timetable.year.toLowerCase()}.pdf`);
 
       toast({
         title: "Timetable exported!",
-        description: "Your timetable has been downloaded as PNG.",
+        description: "Your timetable has been downloaded as PDF.",
       });
     } catch (err) {
+      console.error('Export error:', err);
       toast({
         title: "Export failed",
         description: "Please try again.",
@@ -107,7 +140,7 @@ export const TimetableOptionsStep = ({
                   </motion.div>
                 )}
               </div>
-              <div className="p-2">
+              <div className="p-2 overflow-x-auto">
                 <TimetableDisplay
                   ref={(el) => (timetableRefs.current[index] = el)}
                   timetable={timetable}
@@ -124,12 +157,12 @@ export const TimetableOptionsStep = ({
         <Button
           variant="gradient"
           size="lg"
-          onClick={handleExport}
+          onClick={handleExportPDF}
           disabled={selectedIndex === null || isExporting}
           className="w-full"
         >
-          <Download className="w-4 h-4 mr-2" />
-          {isExporting ? 'Exporting...' : 'Download Selected as PNG'}
+          <FileText className="w-4 h-4 mr-2" />
+          {isExporting ? 'Exporting...' : 'Download Selected as PDF'}
         </Button>
 
         <div className="flex gap-3">

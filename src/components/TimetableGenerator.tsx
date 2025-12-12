@@ -25,6 +25,12 @@ export const TimetableGenerator = () => {
     setSubjects(subjects.filter((s) => s.id !== id));
   };
 
+  const handleUpdateSubject = (updatedSubject: Subject) => {
+    setSubjects(subjects.map((s) => 
+      s.id === updatedSubject.id ? updatedSubject : s
+    ));
+  };
+
   const handleGenerateTimetables = () => {
     let finalSubjects = subjects;
     
@@ -77,6 +83,7 @@ export const TimetableGenerator = () => {
             subjects={subjects}
             onAddSubject={handleAddSubject}
             onRemoveSubject={handleRemoveSubject}
+            onUpdateSubject={handleUpdateSubject}
             onNext={handleGenerateTimetables}
             onBack={() => setCurrentStep(0)}
             manualHours={manualHours}

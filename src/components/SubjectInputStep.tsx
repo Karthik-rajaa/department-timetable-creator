@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, BookOpen, FlaskConical, Trash2, ArrowLeft, Sparkles } from 'lucide-react';
+import { Plus, BookOpen, FlaskConical, Trash2, ArrowLeft, Sparkles, Pencil } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ interface SubjectInputStepProps {
   subjects: Subject[];
   onAddSubject: (subject: Subject) => void;
   onRemoveSubject: (id: string) => void;
+  onUpdateSubject: (subject: Subject) => void;
   onNext: () => void;
   onBack: () => void;
   manualHours: boolean;
@@ -23,33 +24,54 @@ export const SubjectInputStep = ({
   subjects,
   onAddSubject,
   onRemoveSubject,
+  onUpdateSubject,
   onNext,
   onBack,
   manualHours,
   onManualHoursChange,
 }: SubjectInputStepProps) => {
   const [showForm, setShowForm] = useState(false);
+  const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
   const [subjectType, setSubjectType] = useState<'theory' | 'lab'>('theory');
   const [name, setName] = useState('');
   const [weeklyHours, setWeeklyHours] = useState(4);
   const [venue, setVenue] = useState('');
 
+  const resetForm = () => {
+    setName('');
+    setVenue('');
+    setWeeklyHours(4);
+    setSubjectType('theory');
+    setEditingSubject(null);
+    setShowForm(false);
+  };
+
   const handleAddSubject = () => {
     if (!name.trim()) return;
 
     const newSubject: Subject = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: editingSubject?.id || Math.random().toString(36).substr(2, 9),
       name: name.trim(),
       type: subjectType,
       ...(subjectType === 'theory' && manualHours && { weeklyHours }),
       ...(subjectType === 'lab' && { venue: venue.trim() || 'Lab Room' }),
     };
 
-    onAddSubject(newSubject);
-    setName('');
-    setVenue('');
-    setWeeklyHours(4);
-    setShowForm(false);
+    if (editingSubject) {
+      onUpdateSubject(newSubject);
+    } else {
+      onAddSubject(newSubject);
+    }
+    resetForm();
+  };
+
+  const handleEditSubject = (subject: Subject) => {
+    setEditingSubject(subject);
+    setName(subject.name);
+    setSubjectType(subject.type);
+    setWeeklyHours(subject.weeklyHours || 4);
+    setVenue(subject.venue || '');
+    setShowForm(true);
   };
 
   const theoryCount = subjects.filter(s => s.type === 'theory').length;
@@ -127,14 +149,24 @@ export const SubjectInputStep = ({
                       </p>
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                    onClick={() => onRemoveSubject(subject.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-primary"
+                      onClick={() => handleEditSubject(subject)}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => onRemoveSubject(subject.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </Card>
             </motion.div>
@@ -142,7 +174,7 @@ export const SubjectInputStep = ({
         </AnimatePresence>
       </div>
 
-      {/* Add Subject Form */}
+      {/* Add/Edit Subject Form */}
       <AnimatePresence>
         {showForm ? (
           <motion.div
@@ -151,13 +183,18 @@ export const SubjectInputStep = ({
             exit={{ opacity: 0, height: 0 }}
           >
             <Card variant="glass" className="p-4 space-y-4">
-              {/* Type Toggle */}
+              <div className="text-center text-sm font-medium text-foreground">
+                {editingSubject ? 'Edit Subject' : 'Add New Subject'}
+              </div>
+              
+              {/* Type Toggle - disabled when editing */}
               <div className="flex gap-2">
                 <Button
                   variant={subjectType === 'theory' ? 'default' : 'secondary'}
                   size="sm"
                   onClick={() => setSubjectType('theory')}
                   className="flex-1"
+                  disabled={!!editingSubject}
                 >
                   <BookOpen className="w-4 h-4 mr-1" />
                   Theory
@@ -167,6 +204,7 @@ export const SubjectInputStep = ({
                   size="sm"
                   onClick={() => setSubjectType('lab')}
                   className="flex-1"
+                  disabled={!!editingSubject}
                 >
                   <FlaskConical className="w-4 h-4 mr-1" />
                   Lab
@@ -217,7 +255,7 @@ export const SubjectInputStep = ({
                 <Button
                   variant="secondary"
                   className="flex-1"
-                  onClick={() => setShowForm(false)}
+                  onClick={resetForm}
                 >
                   Cancel
                 </Button>
@@ -227,7 +265,7 @@ export const SubjectInputStep = ({
                   onClick={handleAddSubject}
                   disabled={!name.trim()}
                 >
-                  Add Subject
+                  {editingSubject ? 'Update Subject' : 'Add Subject'}
                 </Button>
               </div>
             </Card>
