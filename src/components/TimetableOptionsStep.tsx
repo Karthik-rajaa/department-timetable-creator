@@ -38,27 +38,27 @@ export const TimetableOptionsStep = ({
       container.style.position = 'absolute';
       container.style.left = '-9999px';
       container.style.top = '0';
-      container.style.width = '1000px';
+      container.style.width = '900px';
       container.style.backgroundColor = '#ffffff';
       document.body.appendChild(container);
 
       // Create a fresh render of the timetable for export
       const timetable = timetables[selectedIndex];
       container.innerHTML = `
-        <div style="width: 950px; padding: 20px; background: white; font-family: system-ui, -apple-system, sans-serif;">
-          <div style="background: #1e3a5f; color: white; padding: 16px; text-align: center; border-radius: 8px 8px 0 0;">
-            <h2 style="margin: 0; font-size: 18px; font-weight: bold;">${timetable.department} - ${timetable.year}</h2>
-            <p style="margin: 4px 0 0 0; font-size: 12px; opacity: 0.8;">Weekly Timetable</p>
+        <div style="width: 880px; padding: 10px; background: white; font-family: system-ui, -apple-system, sans-serif;">
+          <div style="background: #1e3a5f; color: white; padding: 12px; text-align: center; border-radius: 6px 6px 0 0;">
+            <h2 style="margin: 0; font-size: 16px; font-weight: bold;">${timetable.department} - ${timetable.year}</h2>
+            <p style="margin: 2px 0 0 0; font-size: 11px; opacity: 0.8;">Weekly Timetable</p>
           </div>
           <table style="width: 100%; border-collapse: collapse; border: 1px solid #e5e7eb; border-top: none;">
             <thead>
               <tr style="background: #f5f7fa;">
-                <th style="border: 1px solid #e5e7eb; padding: 10px; width: 100px; font-weight: 600;">Time</th>
-                <th style="border: 1px solid #e5e7eb; padding: 10px; font-weight: 600;">Monday</th>
-                <th style="border: 1px solid #e5e7eb; padding: 10px; font-weight: 600;">Tuesday</th>
-                <th style="border: 1px solid #e5e7eb; padding: 10px; font-weight: 600;">Wednesday</th>
-                <th style="border: 1px solid #e5e7eb; padding: 10px; font-weight: 600;">Thursday</th>
-                <th style="border: 1px solid #e5e7eb; padding: 10px; font-weight: 600;">Friday</th>
+                <th style="border: 1px solid #e5e7eb; padding: 8px; width: 80px; font-weight: 600; font-size: 12px;">Time</th>
+                <th style="border: 1px solid #e5e7eb; padding: 8px; font-weight: 600; font-size: 12px;">Monday</th>
+                <th style="border: 1px solid #e5e7eb; padding: 8px; font-weight: 600; font-size: 12px;">Tuesday</th>
+                <th style="border: 1px solid #e5e7eb; padding: 8px; font-weight: 600; font-size: 12px;">Wednesday</th>
+                <th style="border: 1px solid #e5e7eb; padding: 8px; font-weight: 600; font-size: 12px;">Thursday</th>
+                <th style="border: 1px solid #e5e7eb; padding: 8px; font-weight: 600; font-size: 12px;">Friday</th>
               </tr>
             </thead>
             <tbody>
@@ -74,8 +74,8 @@ export const TimetableOptionsStep = ({
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        width: 950,
-        windowWidth: 950,
+        width: 900,
+        windowWidth: 900,
       });
 
       // Remove temporary container
@@ -91,25 +91,31 @@ export const TimetableOptionsStep = ({
       // A4 landscape dimensions: 297mm x 210mm
       const pageWidth = 297;
       const pageHeight = 210;
-      const margin = 10;
+      const margin = 8;
       
-      // Calculate dimensions to fit the canvas on the page
-      const imgWidth = pageWidth - (margin * 2);
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      // Calculate the aspect ratio of the canvas
+      const canvasAspect = canvas.width / canvas.height;
       
-      // If image is too tall, scale it down
-      const maxHeight = pageHeight - (margin * 2);
-      let finalWidth = imgWidth;
-      let finalHeight = imgHeight;
+      // Available space
+      const availableWidth = pageWidth - (margin * 2);
+      const availableHeight = pageHeight - (margin * 2);
       
-      if (imgHeight > maxHeight) {
-        finalHeight = maxHeight;
-        finalWidth = (canvas.width * finalHeight) / canvas.height;
+      // Fit the image to the available space while maintaining aspect ratio
+      let finalWidth, finalHeight;
+      
+      if (availableWidth / availableHeight > canvasAspect) {
+        // Height is the limiting factor
+        finalHeight = availableHeight;
+        finalWidth = finalHeight * canvasAspect;
+      } else {
+        // Width is the limiting factor
+        finalWidth = availableWidth;
+        finalHeight = finalWidth / canvasAspect;
       }
 
-      // Center the image
-      const xOffset = (pageWidth - finalWidth) / 2;
-      const yOffset = (pageHeight - finalHeight) / 2;
+      // Position at top-left with margin (not centered vertically)
+      const xOffset = margin;
+      const yOffset = margin;
 
       const imgData = canvas.toDataURL('image/png');
       pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalWidth, finalHeight);
