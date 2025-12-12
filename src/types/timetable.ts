@@ -49,13 +49,13 @@ export const TIME_SLOTS: TimeSlot[] = [
 export const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
 export const DEPARTMENTS = [
-  'Computer Science',
-  'Electronics',
-  'Mechanical',
-  'Civil',
-  'Electrical',
+  'Computer Science and Engineering',
+  'Electronics and Communication Engineering',
+  'Mechanical Engineering',
+  'Civil Engineering',
+  'Electrical and Electronics Engineering',
   'Information Technology',
-  'Chemical',
+  'Biomedical Engineering',
   'Biotechnology',
 ];
 
