@@ -15,7 +15,7 @@ interface LmsState {
 
 const LmsContext = createContext<LmsState | null>(null);
 
-const STORAGE_KEY = "lms-state-v1";
+const STORAGE_KEY = "lms-state-v2";
 
 interface Persisted {
   roleId: string;
