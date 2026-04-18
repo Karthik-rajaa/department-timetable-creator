@@ -22,10 +22,10 @@ import { Role } from "@/lms/data";
 import { Badge } from "@/components/ui/badge";
 
 const navMain = [
-  { title: "Timetable", url: "/", icon: Calendar },
-  { title: "LMS Dashboard", url: "/lms", icon: LayoutDashboard },
+  { title: "LMS Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Courses", url: "/lms/courses", icon: BookOpen },
   { title: "My Schedule", url: "/lms/schedule", icon: CalendarClock },
+  { title: "Timetable", url: "/timetable", icon: Calendar },
 ];
 
 function AppSidebar() {
@@ -58,7 +58,7 @@ function AppSidebar() {
                   <SidebarMenuButton asChild tooltip={item.title}>
                     <NavLink
                       to={item.url}
-                      end={item.url === "/" || item.url === "/lms"}
+                      end={item.url === "/" || item.url === "/lms" || item.url === "/timetable"}
                       className="flex items-center gap-2"
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                     >

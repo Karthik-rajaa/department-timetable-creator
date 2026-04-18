@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Circle, FileText, PlayCircle, BookOpen } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Circle, FileText, BookOpen, HelpCircle } from "lucide-react";
 import { AppLayout } from "@/lms/AppLayout";
 import { MOCK_COURSES, Lesson } from "@/lms/data";
 import { useLms } from "@/lms/LmsContext";
@@ -9,9 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { LessonContent } from "@/components/LessonContent";
 
 const lessonIcon = (type: Lesson["type"]) =>
-  type === "video" ? PlayCircle : type === "pdf" ? FileText : BookOpen;
+  type === "quiz" ? HelpCircle : type === "text" ? BookOpen : FileText;
 
 const CourseDetail = () => {
   const { courseId } = useParams<{ courseId: string }>();
@@ -31,6 +32,12 @@ const CourseDetail = () => {
       </AppLayout>
     );
   }
+
+  const handleComplete = () => {
+    if (active) toggleLesson(course.id, active.id);
+  };
+
+  const isActiveDone = active ? done.includes(active.id) : false;
 
   return (
     <AppLayout title={course.title} subtitle={`${course.instructor} · ${course.category}`}>
@@ -71,23 +78,13 @@ const CourseDetail = () => {
             </CardHeader>
             <CardContent>
               {active ? (
-                <motion.div key={active.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                  <div className="aspect-video rounded-xl flex items-center justify-center" style={{ background: course.coverGradient }}>
-                    {(() => {
-                      const Icon = lessonIcon(active.type);
-                      return <Icon className="w-16 h-16 text-white/90" />;
-                    })()}
-                  </div>
-                  <div>
-                    <Badge variant="outline" className="text-[10px] capitalize mr-2">{active.type}</Badge>
-                    <span className="text-xs text-muted-foreground">{active.duration}</span>
-                  </div>
-                  <p className="text-sm leading-relaxed">{active.content}</p>
-                  {enrolled && (
-                    <Button onClick={() => toggleLesson(course.id, active.id)} variant={done.includes(active.id) ? "outline" : "default"} className={done.includes(active.id) ? "" : "btn-gradient"}>
-                      {done.includes(active.id) ? "Mark incomplete" : "Mark as complete"}
-                    </Button>
-                  )}
+                <motion.div key={active.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <LessonContent
+                    lesson={active}
+                    enrolled={enrolled}
+                    isDone={isActiveDone}
+                    onComplete={handleComplete}
+                  />
                 </motion.div>
               ) : (
                 <p className="text-sm text-muted-foreground">No lessons in this course yet.</p>

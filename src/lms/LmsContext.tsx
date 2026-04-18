@@ -15,7 +15,7 @@ interface LmsState {
 
 const LmsContext = createContext<LmsState | null>(null);
 
-const STORAGE_KEY = "lms-state-v1";
+const STORAGE_KEY = "lms-state-v2";
 
 interface Persisted {
   roleId: string;
@@ -25,8 +25,8 @@ interface Persisted {
 
 const defaultPersisted: Persisted = {
   roleId: "u-stud",
-  enrolled: ["c-web", "c-ai"],
-  completedLessons: { "c-web": ["l-1"] },
+  enrolled: ["c-html", "c-python"],
+  completedLessons: { "c-html": ["l-1"] },
 };
 
 export const LmsProvider = ({ children }: { children: ReactNode }) => {
