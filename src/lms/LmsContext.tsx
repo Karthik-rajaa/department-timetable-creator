@@ -25,8 +25,8 @@ interface Persisted {
 
 const defaultPersisted: Persisted = {
   roleId: "u-stud",
-  enrolled: ["c-web", "c-ai"],
-  completedLessons: { "c-web": ["l-1"] },
+  enrolled: ["c-html", "c-python"],
+  completedLessons: { "c-html": ["l-1"] },
 };
 
 export const LmsProvider = ({ children }: { children: ReactNode }) => {
