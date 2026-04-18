@@ -22,12 +22,13 @@ const App = () => (
       <LmsProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<LmsDashboard />} />
             <Route path="/lms" element={<LmsDashboard />} />
             <Route path="/lms/courses" element={<Courses />} />
             <Route path="/lms/courses/:courseId" element={<CourseDetail />} />
             <Route path="/lms/schedule" element={<Schedule />} />
             <Route path="/lms/admin" element={<Admin />} />
+            <Route path="/timetable" element={<Index />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
