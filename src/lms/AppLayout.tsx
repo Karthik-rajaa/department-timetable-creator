@@ -30,10 +30,17 @@ const navMain = [
 ];
 
 function AppSidebar() {
-  const { user, setRole } = useLms();
+  const { user } = useLms();
+  const { user: authUser, signOut } = useAuth();
+  const navigate = useNavigate();
   const items = user.role === "admin"
     ? [...navMain, { title: "Admin", url: "/lms/admin", icon: ShieldCheck }]
     : navMain;
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth", { replace: true });
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -75,27 +82,28 @@ function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border/50">
-        <div className="px-2 py-1 group-data-[collapsible=icon]:hidden">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">View as</p>
-          <Select value={user.role} onValueChange={(v) => setRole(v as Role)}>
-            <SelectTrigger className="h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="student">Student</SelectItem>
-              <SelectItem value="teacher">Teacher</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-            </SelectContent>
-          </Select>
-          <div className="mt-2 flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-primary/10 text-primary text-[10px] font-semibold flex items-center justify-center">
-              {user.name.split(" ").map(p => p[0]).slice(0, 2).join("")}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium truncate">{user.name}</p>
-              <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
-            </div>
-          </div>
+        <div className="px-2 py-1 group-data-[collapsible=icon]:hidden space-y-2">
+          {authUser ? (
+            <>
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-full bg-primary/10 text-primary text-[10px] font-semibold flex items-center justify-center">
+                  {user.name.split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium truncate">{user.name}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+                </div>
+                <Badge variant="secondary" className="text-[9px] capitalize">{user.role}</Badge>
+              </div>
+              <Button variant="ghost" size="sm" className="w-full justify-start h-8 text-xs" onClick={handleSignOut}>
+                <LogOut className="w-3.5 h-3.5 mr-2" /> Sign out
+              </Button>
+            </>
+          ) : (
+            <Button asChild variant="default" size="sm" className="w-full h-8 text-xs btn-gradient">
+              <Link to="/auth"><LogIn className="w-3.5 h-3.5 mr-2" /> Sign in</Link>
+            </Button>
+          )}
         </div>
       </SidebarFooter>
     </Sidebar>
