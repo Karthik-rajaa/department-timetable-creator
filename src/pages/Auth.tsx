@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { GraduationCap, Loader2, Mail, Lock, User as UserIcon } from "lucide-react";
+import { GraduationCap, Loader2, Mail, Lock, User as UserIcon, Users, BookOpen } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ const Auth = () => {
   const [signUpName, setSignUpName] = useState("");
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPwd, setSignUpPwd] = useState("");
+  const [signUpRole, setSignUpRole] = useState<"student" | "teacher">("student");
 
   useEffect(() => {
     if (!loading && user) navigate("/", { replace: true });
@@ -49,7 +50,7 @@ const Auth = () => {
       password: signUpPwd,
       options: {
         emailRedirectTo: redirectUrl,
-        data: { display_name: signUpName },
+        data: { display_name: signUpName, role: signUpRole },
       },
     });
     setBusy(false);
@@ -57,7 +58,7 @@ const Auth = () => {
       toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
       return;
     }
-    toast({ title: "Account created", description: "You're signed in as a student." });
+    toast({ title: "Account created", description: `You're signed in as a ${signUpRole}.` });
     navigate("/", { replace: true });
   };
 
@@ -133,12 +134,35 @@ const Auth = () => {
                       <Input id="su-pwd" type="password" required minLength={6} value={signUpPwd} onChange={e => setSignUpPwd(e.target.value)} className="pl-9" placeholder="At least 6 characters" />
                     </div>
                   </div>
+                  <div className="space-y-1.5">
+                    <Label>I am a…</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {([
+                        { value: "student", label: "Student", icon: BookOpen, hint: "Learn & enroll" },
+                        { value: "teacher", label: "Teacher", icon: Users, hint: "Teach & track" },
+                      ] as const).map(opt => {
+                        const active = signUpRole === opt.value;
+                        return (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => setSignUpRole(opt.value)}
+                            className={`p-3 rounded-lg border text-left transition ${active ? "border-accent bg-accent/10" : "border-border/60 hover:border-accent/50"}`}
+                          >
+                            <opt.icon className={`w-4 h-4 mb-1 ${active ? "text-accent" : "text-muted-foreground"}`} />
+                            <p className="text-xs font-medium">{opt.label}</p>
+                            <p className="text-[10px] text-muted-foreground">{opt.hint}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                   <Button type="submit" className="w-full btn-gradient" disabled={busy}>
                     {busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     Create account
                   </Button>
                   <p className="text-[11px] text-muted-foreground text-center">
-                    New accounts default to the <span className="font-medium">student</span> role. An admin can grant teacher or admin access.
+                    Admin access is granted from the Admin console — never at signup.
                   </p>
                 </form>
               </TabsContent>
