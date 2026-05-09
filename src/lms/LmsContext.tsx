@@ -1,56 +1,58 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from "react";
-import { LmsUser, MOCK_USERS, Role, MOCK_COURSES } from "./data";
+import { LmsUser, MOCK_COURSES, Role } from "./data";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface LmsState {
   user: LmsUser;
-  setRole: (role: Role) => void;
-  enrolled: string[]; // course ids
+  enrolled: string[];
   enroll: (courseId: string) => void;
   unenroll: (courseId: string) => void;
   isEnrolled: (courseId: string) => boolean;
-  completedLessons: Record<string, string[]>; // courseId -> lessonIds
+  completedLessons: Record<string, string[]>;
   toggleLesson: (courseId: string, lessonId: string) => void;
-  courseProgress: (courseId: string) => number; // 0..100
+  courseProgress: (courseId: string) => number;
 }
 
 const LmsContext = createContext<LmsState | null>(null);
 
-const STORAGE_KEY = "lms-state-v2";
-
 interface Persisted {
-  roleId: string;
   enrolled: string[];
   completedLessons: Record<string, string[]>;
 }
 
 const defaultPersisted: Persisted = {
-  roleId: "u-stud",
   enrolled: ["c-html", "c-python"],
-  completedLessons: { "c-html": ["l-1"] },
+  completedLessons: {},
 };
 
+const storageKey = (uid: string | null) => `lms-state-${uid ?? "anon"}`;
+
 export const LmsProvider = ({ children }: { children: ReactNode }) => {
-  const [state, setState] = useState<Persisted>(() => {
+  const { user: authUser, profile, role } = useAuth();
+  const uid = authUser?.id ?? null;
+
+  const [state, setState] = useState<Persisted>(defaultPersisted);
+
+  // Load when user changes
+  useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return { ...defaultPersisted, ...JSON.parse(raw) };
-    } catch { /* ignore */ }
-    return defaultPersisted;
-  });
+      const raw = localStorage.getItem(storageKey(uid));
+      setState(raw ? { ...defaultPersisted, ...JSON.parse(raw) } : defaultPersisted);
+    } catch {
+      setState(defaultPersisted);
+    }
+  }, [uid]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
+    localStorage.setItem(storageKey(uid), JSON.stringify(state));
+  }, [state, uid]);
 
-  const user = useMemo(
-    () => MOCK_USERS.find(u => u.id === state.roleId) ?? MOCK_USERS[2],
-    [state.roleId]
-  );
-
-  const setRole = useCallback((role: Role) => {
-    const u = MOCK_USERS.find(x => x.role === role);
-    if (u) setState(s => ({ ...s, roleId: u.id }));
-  }, []);
+  const lmsUser: LmsUser = useMemo(() => ({
+    id: uid ?? "guest",
+    name: profile?.display_name ?? authUser?.email?.split("@")[0] ?? "Guest",
+    email: profile?.email ?? authUser?.email ?? "",
+    role: (role ?? "student") as Role,
+  }), [uid, profile, authUser, role]);
 
   const enroll = useCallback((courseId: string) => {
     setState(s => s.enrolled.includes(courseId) ? s : { ...s, enrolled: [...s.enrolled, courseId] });
@@ -59,7 +61,6 @@ export const LmsProvider = ({ children }: { children: ReactNode }) => {
     setState(s => ({ ...s, enrolled: s.enrolled.filter(id => id !== courseId) }));
   }, []);
   const isEnrolled = useCallback((courseId: string) => state.enrolled.includes(courseId), [state.enrolled]);
-
   const toggleLesson = useCallback((courseId: string, lessonId: string) => {
     setState(s => {
       const list = s.completedLessons[courseId] ?? [];
@@ -67,7 +68,6 @@ export const LmsProvider = ({ children }: { children: ReactNode }) => {
       return { ...s, completedLessons: { ...s.completedLessons, [courseId]: next } };
     });
   }, []);
-
   const courseProgress = useCallback((courseId: string) => {
     const course = MOCK_COURSES.find(c => c.id === courseId);
     if (!course) return 0;
@@ -78,8 +78,7 @@ export const LmsProvider = ({ children }: { children: ReactNode }) => {
   }, [state.completedLessons]);
 
   const value: LmsState = {
-    user,
-    setRole,
+    user: lmsUser,
     enrolled: state.enrolled,
     enroll,
     unenroll,
