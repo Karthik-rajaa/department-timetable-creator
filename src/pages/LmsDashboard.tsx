@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useLms } from "@/lms/LmsContext";
 import { MOCK_COURSES, MOCK_USERS } from "@/lms/data";
 import { getTodaySessions, getTodayName } from "@/lms/timetableLink";
+import { ClaimAdminCard } from "@/components/ClaimAdminCard";
 
 const StatCard = ({ icon: Icon, label, value, accent }: { icon: typeof BookOpen; label: string; value: string | number; accent?: boolean }) => (
   <Card className="glass-card">
@@ -33,6 +34,7 @@ const LmsDashboard = () => {
   return (
     <AppLayout title="LMS Dashboard" subtitle={`Welcome back, ${user.name.split(" ")[0]} · ${getTodayName()}`}>
       <div className="container py-6 space-y-6">
+        <ClaimAdminCard />
         {user.role === "student" && (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
