@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Calendar, LayoutDashboard, BookOpen, GraduationCap, ShieldCheck, CalendarClock, Sparkles } from "lucide-react";
+import { Calendar, LayoutDashboard, BookOpen, GraduationCap, ShieldCheck, CalendarClock, Sparkles, LogOut, LogIn } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar,
@@ -17,9 +17,10 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useLms } from "@/lms/LmsContext";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Role } from "@/lms/data";
+import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Link, useNavigate } from "react-router-dom";
 
 const navMain = [
   { title: "LMS Dashboard", url: "/", icon: LayoutDashboard },
