@@ -37,7 +37,7 @@ const App = () => (
               <Route path="/lms/courses/:courseId" element={<Protected><CourseDetail /></Protected>} />
               <Route path="/lms/schedule" element={<Protected><Schedule /></Protected>} />
               <Route path="/lms/admin" element={<ProtectedRoute requireRole="admin"><Admin /></ProtectedRoute>} />
-              <Route path="/timetable" element={<Protected><Index /></Protected>} />
+              <Route path="/timetable" element={<ProtectedRoute requireRole="admin"><Index /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

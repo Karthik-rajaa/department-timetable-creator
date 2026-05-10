@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { GraduationCap, Loader2, Mail, Lock, User as UserIcon, Users, BookOpen } from "lucide-react";
+import { GraduationCap, Loader2, Mail, Lock, User as UserIcon, Users, BookOpen, ShieldCheck } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,7 +22,7 @@ const Auth = () => {
   const [signUpName, setSignUpName] = useState("");
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPwd, setSignUpPwd] = useState("");
-  const [signUpRole, setSignUpRole] = useState<"student" | "teacher">("student");
+  const [signUpRole, setSignUpRole] = useState<"student" | "teacher" | "admin">("student");
 
   useEffect(() => {
     if (!loading && user) navigate("/", { replace: true });
@@ -136,10 +136,11 @@ const Auth = () => {
                   </div>
                   <div className="space-y-1.5">
                     <Label>I am a…</Label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                       {([
                         { value: "student", label: "Student", icon: BookOpen, hint: "Learn & enroll" },
                         { value: "teacher", label: "Teacher", icon: Users, hint: "Teach & track" },
+                        { value: "admin", label: "Admin", icon: ShieldCheck, hint: "Manage all" },
                       ] as const).map(opt => {
                         const active = signUpRole === opt.value;
                         return (
@@ -162,7 +163,7 @@ const Auth = () => {
                     Create account
                   </Button>
                   <p className="text-[11px] text-muted-foreground text-center">
-                    Admin access is granted from the Admin console — never at signup.
+                    Choose Admin only if you manage the platform.
                   </p>
                 </form>
               </TabsContent>

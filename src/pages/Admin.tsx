@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MOCK_COURSES } from "@/lms/data";
-import { BookOpen, Users, ShieldCheck, TrendingUp, CheckCircle2, XCircle, Loader2, UserPlus, UserMinus, Crown } from "lucide-react";
+import { BookOpen, Users, ShieldCheck, TrendingUp, CheckCircle2, XCircle, Loader2, UserPlus, UserMinus, Crown, Calendar, Sparkles, ArrowRight } from "lucide-react";
 import { useLms } from "@/lms/LmsContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -96,6 +96,25 @@ const Admin = () => {
             </Card>
           ))}
         </div>
+
+        <Card className="glass-card overflow-hidden relative">
+          <div className="absolute inset-0 opacity-50 pointer-events-none" style={{ background: "var(--gradient-accent)" }} />
+          <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center gap-4 relative">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-background/80 backdrop-blur shrink-0">
+              <Calendar className="w-6 h-6 text-accent" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-display font-semibold text-base">Timetable Scheduler</h3>
+                <Badge variant="secondary" className="text-[10px] gap-1"><Sparkles className="w-3 h-3" />AI</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">Full access to generate, customize and export AI-powered weekly timetables for any department.</p>
+            </div>
+            <Button asChild size="sm" className="btn-gradient shrink-0">
+              <Link to="/timetable">Open Timetable <ArrowRight className="w-3.5 h-3.5 ml-1" /></Link>
+            </Button>
+          </CardContent>
+        </Card>
 
         <div className="grid lg:grid-cols-2 gap-6">
           <Card className="glass-card">
