@@ -163,7 +163,7 @@ const Auth = () => {
                     Create account
                   </Button>
                   <p className="text-[11px] text-muted-foreground text-center">
-                    Admin access is granted from the Admin console — never at signup.
+                    Choose Admin only if you manage the platform.
                   </p>
                 </form>
               </TabsContent>
