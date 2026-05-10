@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MOCK_COURSES } from "@/lms/data";
-import { BookOpen, Users, ShieldCheck, TrendingUp, CheckCircle2, XCircle, Loader2, UserPlus, UserMinus, Crown } from "lucide-react";
+import { BookOpen, Users, ShieldCheck, TrendingUp, CheckCircle2, XCircle, Loader2, UserPlus, UserMinus, Crown, Calendar, Sparkles, ArrowRight } from "lucide-react";
 import { useLms } from "@/lms/LmsContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
