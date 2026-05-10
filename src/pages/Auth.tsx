@@ -136,10 +136,11 @@ const Auth = () => {
                   </div>
                   <div className="space-y-1.5">
                     <Label>I am a…</Label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                       {([
                         { value: "student", label: "Student", icon: BookOpen, hint: "Learn & enroll" },
                         { value: "teacher", label: "Teacher", icon: Users, hint: "Teach & track" },
+                        { value: "admin", label: "Admin", icon: ShieldCheck, hint: "Manage all" },
                       ] as const).map(opt => {
                         const active = signUpRole === opt.value;
                         return (
