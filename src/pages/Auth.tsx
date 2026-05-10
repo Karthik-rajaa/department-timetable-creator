@@ -22,7 +22,7 @@ const Auth = () => {
   const [signUpName, setSignUpName] = useState("");
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPwd, setSignUpPwd] = useState("");
-  const [signUpRole, setSignUpRole] = useState<"student" | "teacher">("student");
+  const [signUpRole, setSignUpRole] = useState<"student" | "teacher" | "admin">("student");
 
   useEffect(() => {
     if (!loading && user) navigate("/", { replace: true });
