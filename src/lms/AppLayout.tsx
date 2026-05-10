@@ -26,7 +26,6 @@ const navMain = [
   { title: "LMS Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Courses", url: "/lms/courses", icon: BookOpen },
   { title: "My Schedule", url: "/lms/schedule", icon: CalendarClock },
-  { title: "Timetable", url: "/timetable", icon: Calendar },
 ];
 
 function AppSidebar() {
@@ -34,7 +33,7 @@ function AppSidebar() {
   const { user: authUser, signOut } = useAuth();
   const navigate = useNavigate();
   const items = user.role === "admin"
-    ? [...navMain, { title: "Admin", url: "/lms/admin", icon: ShieldCheck }]
+    ? [...navMain, { title: "Timetable", url: "/timetable", icon: Calendar }, { title: "Admin", url: "/lms/admin", icon: ShieldCheck }]
     : navMain;
 
   const handleSignOut = async () => {
